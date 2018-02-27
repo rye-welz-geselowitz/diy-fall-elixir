@@ -1,0 +1,126 @@
+var _user$project$Main$push = F2(
+	function (fn, model) {
+		return A2(
+			_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
+			_elm_lang$core$Json_Encode$object(
+				{ctor: '[]'}),
+			A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, fn, 'games:test'));
+	});
+var _user$project$Main$socketServer = 'ws://172.23.11.170:4000/socket/websocket';
+var _user$project$Main$initializeSocket = _fbonetti$elm_phoenix_socket$Phoenix_Socket$withDebug(
+	_fbonetti$elm_phoenix_socket$Phoenix_Socket$init(_user$project$Main$socketServer));
+var _user$project$Main$initialModel = {phxSocket: _user$project$Main$initializeSocket};
+var _user$project$Main$init = {ctor: '_Tuple2', _0: _user$project$Main$initialModel, _1: _elm_lang$core$Platform_Cmd$none};
+var _user$project$Main$initChannel = function (channel) {
+	return _fbonetti$elm_phoenix_socket$Phoenix_Channel$init(
+		A2(_elm_lang$core$Basics_ops['++'], 'games:', channel));
+};
+var _user$project$Main$joinChannel = function (socket) {
+	return A2(
+		_fbonetti$elm_phoenix_socket$Phoenix_Socket$join,
+		_user$project$Main$initChannel('test'),
+		socket);
+};
+var _user$project$Main$Model = function (a) {
+	return {phxSocket: a};
+};
+var _user$project$Main$ProcessSocketData = function (a) {
+	return {ctor: 'ProcessSocketData', _0: a};
+};
+var _user$project$Main$Show = {ctor: 'Show'};
+var _user$project$Main$JoinChannel = {ctor: 'JoinChannel'};
+var _user$project$Main$view = function (model) {
+	return A2(
+		_elm_lang$html$Html$div,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$button,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Events$onClick(_user$project$Main$JoinChannel),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('Connect Yourself'),
+					_1: {ctor: '[]'}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$button,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Events$onClick(_user$project$Main$Show),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text('Show'),
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			}
+		});
+};
+var _user$project$Main$PhoenixMsg = function (a) {
+	return {ctor: 'PhoenixMsg', _0: a};
+};
+var _user$project$Main$update = F2(
+	function (msg, model) {
+		var _p0 = msg;
+		switch (_p0.ctor) {
+			case 'ProcessSocketData':
+				var d = A2(_elm_lang$core$Debug$log, 'data', _p0._0);
+				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+			case 'PhoenixMsg':
+				var _p1 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$update, _p0._0, model.phxSocket);
+				var phxSocket = _p1._0;
+				var phxCmd = _p1._1;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{phxSocket: phxSocket}),
+					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, phxCmd)
+				};
+			case 'JoinChannel':
+				var _p2 = _user$project$Main$joinChannel(model.phxSocket);
+				var phx = _p2._0;
+				var msg = _p2._1;
+				var d = A2(_elm_lang$core$Debug$log, 'phx', phx);
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{phxSocket: phx}),
+					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, msg)
+				};
+			default:
+				var pmsg = A2(
+					_fbonetti$elm_phoenix_socket$Phoenix_Push$onError,
+					_user$project$Main$ProcessSocketData,
+					A2(
+						_fbonetti$elm_phoenix_socket$Phoenix_Push$onOk,
+						_user$project$Main$ProcessSocketData,
+						A2(_user$project$Main$push, 'show', model)));
+				var d = A2(_elm_lang$core$Debug$log, 'pmsg', pmsg);
+				var _p3 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, pmsg, model.phxSocket);
+				var phxSocket = _p3._0;
+				var phxCmd = _p3._1;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{phxSocket: phxSocket}),
+					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, phxCmd)
+				};
+		}
+	});
+var _user$project$Main$subscriptions = function (model) {
+	return A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$listen, model.phxSocket, _user$project$Main$PhoenixMsg);
+};
+var _user$project$Main$main = _elm_lang$html$Html$program(
+	{init: _user$project$Main$init, view: _user$project$Main$view, update: _user$project$Main$update, subscriptions: _user$project$Main$subscriptions})();
