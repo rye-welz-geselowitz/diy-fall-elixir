@@ -34,7 +34,7 @@ initializeSocket =
 
 socketServer : String
 socketServer =
-    "ws://172.23.11.170:4000/socket/websocket"
+    "ws://localhost:4000/socket/websocket"
 
 
 initialModel : Model
@@ -110,7 +110,7 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ button [ onClick JoinChannel ] [ text "Connect Yourself" ]
+        [ button [ onClick JoinChannel ] [ text "Connect Yourself?!" ]
         , button [ onClick Show ] [ text "Show" ]
         ]
 

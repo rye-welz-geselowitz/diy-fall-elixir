@@ -9573,7 +9573,7 @@ var _user$project$Main$push = F2(
 				{ctor: '[]'}),
 			A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, fn, 'games:test'));
 	});
-var _user$project$Main$socketServer = 'ws://172.23.11.170:4000/socket/websocket';
+var _user$project$Main$socketServer = 'ws://localhost:4000/socket/websocket';
 var _user$project$Main$initializeSocket = _fbonetti$elm_phoenix_socket$Phoenix_Socket$withDebug(
 	_fbonetti$elm_phoenix_socket$Phoenix_Socket$init(_user$project$Main$socketServer));
 var _user$project$Main$initialModel = {phxSocket: _user$project$Main$initializeSocket};
@@ -9611,7 +9611,7 @@ var _user$project$Main$view = function (model) {
 				},
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html$text('Connect Yourself'),
+					_0: _elm_lang$html$Html$text('Connect Yourself?!'),
 					_1: {ctor: '[]'}
 				}),
 			_1: {
