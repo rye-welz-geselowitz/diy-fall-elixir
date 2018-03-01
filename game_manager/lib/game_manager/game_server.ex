@@ -6,8 +6,8 @@ defmodule GameManager.GameServer do
     GenServer.start_link(__MODULE__, name, name: via_tuple(name))
   end
 
-  def initiate_game do
-    GenServer.call(__MODULE__, :initiate)
+  def initiate_game(pid) do
+    GenServer.call(pid, :initiate)
   end
 
   #SERVER

@@ -19,6 +19,4 @@ defmodule GameManager.GameSupervisor do
     DynamicSupervisor.init(strategy: :one_for_one)
   end
 
-
-
 end

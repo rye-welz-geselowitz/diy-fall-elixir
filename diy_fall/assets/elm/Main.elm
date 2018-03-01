@@ -1,7 +1,8 @@
 module Main exposing (main)
 
-import Html exposing (Html, button, div, text)
-import Html.Events exposing (onClick)
+import Html exposing (Html, button, div, text, input)
+import Html.Attributes exposing (placeholder, value)
+import Html.Events exposing (onClick, onInput)
 import Json.Encode as JE
 import Phoenix.Channel
 import Phoenix.Push
@@ -10,6 +11,8 @@ import Phoenix.Socket
 
 type alias Model =
     { phxSocket : Phoenix.Socket.Socket Msg
+    , name : String
+    , gameCode: String
     }
 
 
@@ -20,10 +23,11 @@ initChannel channel =
 
 joinChannel :
     Phoenix.Socket.Socket Msg
+    -> String
     -> ( Phoenix.Socket.Socket Msg, Cmd (Phoenix.Socket.Msg Msg) )
-joinChannel socket =
+joinChannel  socket gameCode =
     socket
-        |> Phoenix.Socket.join (initChannel "test")
+        |> Phoenix.Socket.join (initChannel gameCode)
 
 
 initializeSocket : Phoenix.Socket.Socket Msg
@@ -39,7 +43,7 @@ socketServer =
 
 initialModel : Model
 initialModel =
-    { phxSocket = initializeSocket }
+    { phxSocket = initializeSocket, name = "", gameCode = "" }
 
 
 init : ( Model, Cmd Msg )
@@ -52,11 +56,18 @@ type Msg
     | JoinChannel
     | Show
     | ProcessSocketData JE.Value
+    | SetName String
+    | SetGameCode String
+
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        SetName name ->
+          ({model | name = name}, Cmd.none)
+        SetGameCode gameCode ->
+          ({model | gameCode = gameCode}, Cmd.none)
         ProcessSocketData data ->
             let
                 d =
@@ -76,7 +87,7 @@ update msg model =
         JoinChannel ->
             let
                 ( phx, msg ) =
-                    joinChannel model.phxSocket
+                    joinChannel model.phxSocket model.gameCode
 
                 d =
                     Debug.log "phx" phx
@@ -110,8 +121,14 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ button [ onClick JoinChannel ] [ text "Connect Yourself?!" ]
-        , button [ onClick Show ] [ text "Show" ]
+        [
+        div [] [
+          input [placeholder "Your Name", onInput SetName, value model.name] []],
+        div [] [
+          input [placeholder "Game Code", onInput SetGameCode, value model.gameCode] []
+        ],
+        button [ onClick JoinChannel ] [ text "Connect" ]
+        -- , button [ onClick Show ] [ text "Show" ]
         ]
 
 
