@@ -1,0 +1,15 @@
+var _user$project$Room$test = 'hi';
+var _user$project$Room$Round = {ctor: 'Round'};
+var _user$project$Room$startRound = function (room) {
+	var _p0 = room;
+	switch (_p0.ctor) {
+		case 'Lobby':
+			return _elm_lang$core$Result$Ok(_user$project$Room$Round);
+		case 'Round':
+			return _elm_lang$core$Result$Err('already in round');
+		default:
+			return _elm_lang$core$Result$Err('not in game');
+	}
+};
+var _user$project$Room$Lobby = {ctor: 'Lobby'};
+var _user$project$Room$None = {ctor: 'None'};

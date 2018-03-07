@@ -49,8 +49,10 @@ exports.config = {
       ignore: [/vendor/]
     },
     elmBrunch: {
-      mainModules: ["elm/Main.elm"],
+      mainModules: ["elm/Room.elm","elm/Main.elm"],
+      outputFile: 'main.js',
       outputFolder: "js/"
+
     }
   },
 

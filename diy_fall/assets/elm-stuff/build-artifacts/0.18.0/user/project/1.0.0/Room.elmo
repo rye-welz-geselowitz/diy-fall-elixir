@@ -1,0 +1,74 @@
+var _user$project$Room$Round = F2(
+	function (a, b) {
+		return {ctor: 'Round', _0: a, _1: b};
+	});
+var _user$project$Room$Lobby = function (a) {
+	return {ctor: 'Lobby', _0: a};
+};
+var _user$project$Room$None = {ctor: 'None'};
+var _user$project$Room$SpyData = {ctor: 'SpyData'};
+var _user$project$Room$NonSpyData = F2(
+	function (a, b) {
+		return {ctor: 'NonSpyData', _0: a, _1: b};
+	});
+var _user$project$Room$roundDataDecoder = A3(
+	_elm_lang$core$Json_Decode$map2,
+	F2(
+		function (role, location) {
+			return A2(_user$project$Room$NonSpyData, role, location);
+		}),
+	A2(
+		_elm_lang$core$Json_Decode$at,
+		{
+			ctor: '::',
+			_0: 'role',
+			_1: {ctor: '[]'}
+		},
+		_elm_lang$core$Json_Decode$string),
+	A2(
+		_elm_lang$core$Json_Decode$at,
+		{
+			ctor: '::',
+			_0: 'location_name',
+			_1: {ctor: '[]'}
+		},
+		_elm_lang$core$Json_Decode$string));
+var _user$project$Room$decoder = A4(
+	_elm_lang$core$Json_Decode$map3,
+	F3(
+		function (players, data, isRoundInSession) {
+			if (isRoundInSession) {
+				var _p0 = data;
+				if (_p0.ctor === 'Nothing') {
+					return A2(_user$project$Room$Round, players, _user$project$Room$SpyData);
+				} else {
+					return A2(_user$project$Room$Round, players, _p0._0);
+				}
+			} else {
+				return _user$project$Room$Lobby(players);
+			}
+		}),
+	A2(
+		_elm_lang$core$Json_Decode$at,
+		{
+			ctor: '::',
+			_0: 'players',
+			_1: {ctor: '[]'}
+		},
+		_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string)),
+	A2(
+		_elm_lang$core$Json_Decode$at,
+		{
+			ctor: '::',
+			_0: 'round',
+			_1: {ctor: '[]'}
+		},
+		_elm_lang$core$Json_Decode$nullable(_user$project$Room$roundDataDecoder)),
+	A2(
+		_elm_lang$core$Json_Decode$at,
+		{
+			ctor: '::',
+			_0: 'is_round_in_session',
+			_1: {ctor: '[]'}
+		},
+		_elm_lang$core$Json_Decode$bool));

@@ -1,42 +1,238 @@
-var _user$project$Main$push = F2(
-	function (fn, model) {
+var _user$project$Main$initChannel = F2(
+	function (channel, playerName) {
 		return A2(
-			_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
-			_elm_lang$core$Json_Encode$object(
-				{ctor: '[]'}),
-			A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, fn, 'games:test'));
+			_fbonetti$elm_phoenix_socket$Phoenix_Channel$withPayload,
+			_elm_lang$core$Json_Encode$string(playerName),
+			_fbonetti$elm_phoenix_socket$Phoenix_Channel$init(
+				A2(_elm_lang$core$Basics_ops['++'], 'games:', channel)));
 	});
+var _user$project$Main$joinChannel = function (_p0) {
+	var _p1 = _p0;
+	return A2(
+		_fbonetti$elm_phoenix_socket$Phoenix_Socket$join,
+		A2(_user$project$Main$initChannel, _p1.roomCodeInput, _p1.playerNameInput),
+		_p1.phxSocket);
+};
+var _user$project$Main$playersView = function (players) {
+	return A2(
+		_elm_lang$html$Html$div,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$h3,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('Players Present'),
+					_1: {ctor: '[]'}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$ul,
+					{ctor: '[]'},
+					A2(
+						_elm_lang$core$List$map,
+						function (p) {
+							return A2(
+								_elm_lang$html$Html$li,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text(p),
+									_1: {ctor: '[]'}
+								});
+						},
+						players)),
+				_1: {ctor: '[]'}
+			}
+		});
+};
+var _user$project$Main$roundDataView = function (roundData) {
+	var _p2 = roundData;
+	if (_p2.ctor === 'SpyData') {
+		return A2(
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html$text('You\'re the spy!'),
+				_1: {ctor: '[]'}
+			});
+	} else {
+		return A2(
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$div,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text('Location: '),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html$text(_p2._1),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html$text(' | Role: '),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html$text(_p2._0),
+									_1: {ctor: '[]'}
+								}
+							}
+						}
+					}),
+				_1: {ctor: '[]'}
+			});
+	}
+};
 var _user$project$Main$socketServer = 'ws://localhost:4000/socket/websocket';
 var _user$project$Main$initializeSocket = _fbonetti$elm_phoenix_socket$Phoenix_Socket$withDebug(
 	_fbonetti$elm_phoenix_socket$Phoenix_Socket$init(_user$project$Main$socketServer));
-var _user$project$Main$initialModel = {phxSocket: _user$project$Main$initializeSocket, name: '', gameCode: ''};
+var _user$project$Main$initialModel = {phxSocket: _user$project$Main$initializeSocket, roomCodeInput: '', playerNameInput: '', room: _user$project$Room$None};
 var _user$project$Main$init = {ctor: '_Tuple2', _0: _user$project$Main$initialModel, _1: _elm_lang$core$Platform_Cmd$none};
-var _user$project$Main$initChannel = function (channel) {
-	return _fbonetti$elm_phoenix_socket$Phoenix_Channel$init(
-		A2(_elm_lang$core$Basics_ops['++'], 'games:', channel));
-};
-var _user$project$Main$joinChannel = F2(
-	function (socket, gameCode) {
-		return A2(
-			_fbonetti$elm_phoenix_socket$Phoenix_Socket$join,
-			_user$project$Main$initChannel(gameCode),
-			socket);
+var _user$project$Main$Model = F4(
+	function (a, b, c, d) {
+		return {phxSocket: a, roomCodeInput: b, playerNameInput: c, room: d};
 	});
-var _user$project$Main$Model = F3(
-	function (a, b, c) {
-		return {phxSocket: a, name: b, gameCode: c};
-	});
-var _user$project$Main$SetGameCode = function (a) {
-	return {ctor: 'SetGameCode', _0: a};
+var _user$project$Main$GameInSession = {ctor: 'GameInSession'};
+var _user$project$Main$RequestGameData = {ctor: 'RequestGameData'};
+var _user$project$Main$InitiateRound = {ctor: 'InitiateRound'};
+var _user$project$Main$SetPlayerNameInput = function (a) {
+	return {ctor: 'SetPlayerNameInput', _0: a};
 };
-var _user$project$Main$SetName = function (a) {
-	return {ctor: 'SetName', _0: a};
+var _user$project$Main$SetRoomCodeInput = function (a) {
+	return {ctor: 'SetRoomCodeInput', _0: a};
 };
 var _user$project$Main$ProcessSocketData = function (a) {
 	return {ctor: 'ProcessSocketData', _0: a};
 };
-var _user$project$Main$Show = {ctor: 'Show'};
-var _user$project$Main$JoinChannel = {ctor: 'JoinChannel'};
+var _user$project$Main$requestGameData = function (model) {
+	return A2(
+		_fbonetti$elm_phoenix_socket$Phoenix_Push$onOk,
+		_user$project$Main$ProcessSocketData,
+		A2(
+			_fbonetti$elm_phoenix_socket$Phoenix_Push$init,
+			'request_game_data',
+			A2(_elm_lang$core$Basics_ops['++'], 'games:', model.roomCodeInput)));
+};
+var _user$project$Main$initiateGame = function (model) {
+	return A2(
+		_fbonetti$elm_phoenix_socket$Phoenix_Push$onOk,
+		_user$project$Main$ProcessSocketData,
+		A2(
+			_fbonetti$elm_phoenix_socket$Phoenix_Push$init,
+			'initiate',
+			A2(_elm_lang$core$Basics_ops['++'], 'games:', model.roomCodeInput)));
+};
+var _user$project$Main$PhoenixMsg = function (a) {
+	return {ctor: 'PhoenixMsg', _0: a};
+};
+var _user$project$Main$update = F2(
+	function (msg, model) {
+		var _p3 = msg;
+		switch (_p3.ctor) {
+			case 'JoinRoom':
+				var _p4 = _user$project$Main$joinChannel(model);
+				var phx = _p4._0;
+				var msg = _p4._1;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							phxSocket: A4(
+								_fbonetti$elm_phoenix_socket$Phoenix_Socket$on,
+								'game_in_session',
+								A2(_elm_lang$core$Basics_ops['++'], 'games:', model.roomCodeInput),
+								_elm_lang$core$Basics$always(_user$project$Main$GameInSession),
+								A4(
+									_fbonetti$elm_phoenix_socket$Phoenix_Socket$on,
+									'update_game_data',
+									A2(_elm_lang$core$Basics_ops['++'], 'games:', model.roomCodeInput),
+									_elm_lang$core$Basics$always(_user$project$Main$RequestGameData),
+									phx))
+						}),
+					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, msg)
+				};
+			case 'PhoenixMsg':
+				var _p5 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$update, _p3._0, model.phxSocket);
+				var phxSocket = _p5._0;
+				var phxCmd = _p5._1;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{phxSocket: phxSocket}),
+					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, phxCmd)
+				};
+			case 'SetRoomCodeInput':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{roomCodeInput: _p3._0}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'SetPlayerNameInput':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{playerNameInput: _p3._0}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'InitiateRound':
+				var pmsg = _user$project$Main$initiateGame(model);
+				var _p6 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, pmsg, model.phxSocket);
+				var phxSocket = _p6._0;
+				var phxCmd = _p6._1;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{phxSocket: phxSocket}),
+					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, phxCmd)
+				};
+			case 'RequestGameData':
+				var pmsg = _user$project$Main$requestGameData(model);
+				var _p7 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, pmsg, model.phxSocket);
+				var phxSocket = _p7._0;
+				var phxCmd = _p7._1;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{phxSocket: phxSocket}),
+					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, phxCmd)
+				};
+			case 'ProcessSocketData':
+				var _p8 = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Room$decoder, _p3._0);
+				if (_p8.ctor === 'Ok') {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{room: _p8._0}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					var d = A2(_elm_lang$core$Debug$log, 'error', _p8._0);
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				}
+			default:
+				var d = A2(_elm_lang$core$Debug$log, 'READ ME:', 'sorry, game in session!!!');
+				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+		}
+	});
+var _user$project$Main$subscriptions = function (model) {
+	return A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$listen, model.phxSocket, _user$project$Main$PhoenixMsg);
+};
+var _user$project$Main$JoinRoom = {ctor: 'JoinRoom'};
 var _user$project$Main$view = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
@@ -44,144 +240,129 @@ var _user$project$Main$view = function (model) {
 		{
 			ctor: '::',
 			_0: A2(
-				_elm_lang$html$Html$div,
+				_elm_lang$html$Html$h1,
 				{ctor: '[]'},
 				{
 					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$input,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$placeholder('Your Name'),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$html$Html_Events$onInput(_user$project$Main$SetName),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$value(model.name),
-									_1: {ctor: '[]'}
-								}
-							}
-						},
-						{ctor: '[]'}),
+					_0: _elm_lang$html$Html$text('DIY fall'),
 					_1: {ctor: '[]'}
 				}),
 			_1: {
 				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$div,
-					{ctor: '[]'},
-					{
-						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$input,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$placeholder('Game Code'),
-								_1: {
+				_0: function () {
+					var _p9 = model.room;
+					switch (_p9.ctor) {
+						case 'None':
+							return A2(
+								_elm_lang$html$Html$div,
+								{ctor: '[]'},
+								{
 									ctor: '::',
-									_0: _elm_lang$html$Html_Events$onInput(_user$project$Main$SetGameCode),
+									_0: A2(
+										_elm_lang$html$Html$input,
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$placeholder('Your name'),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html_Events$onInput(_user$project$Main$SetPlayerNameInput),
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html_Attributes$value(model.playerNameInput),
+													_1: {ctor: '[]'}
+												}
+											}
+										},
+										{ctor: '[]'}),
 									_1: {
 										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$value(model.gameCode),
+										_0: A2(
+											_elm_lang$html$Html$input,
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$placeholder('Game code'),
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html_Events$onInput(_user$project$Main$SetRoomCodeInput),
+													_1: {
+														ctor: '::',
+														_0: _elm_lang$html$Html_Attributes$value(model.roomCodeInput),
+														_1: {ctor: '[]'}
+													}
+												}
+											},
+											{ctor: '[]'}),
+										_1: {
+											ctor: '::',
+											_0: A2(
+												_elm_lang$html$Html$button,
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html_Events$onClick(_user$project$Main$JoinRoom),
+													_1: {ctor: '[]'}
+												},
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html$text('Join Game'),
+													_1: {ctor: '[]'}
+												}),
+											_1: {ctor: '[]'}
+										}
+									}
+								});
+						case 'Lobby':
+							return A2(
+								_elm_lang$html$Html$div,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text('Waiting for all players to join...'),
+									_1: {
+										ctor: '::',
+										_0: A2(
+											_elm_lang$html$Html$div,
+											{ctor: '[]'},
+											{
+												ctor: '::',
+												_0: A2(
+													_elm_lang$html$Html$button,
+													{
+														ctor: '::',
+														_0: _elm_lang$html$Html_Events$onClick(_user$project$Main$InitiateRound),
+														_1: {ctor: '[]'}
+													},
+													{
+														ctor: '::',
+														_0: _elm_lang$html$Html$text('Start Game!'),
+														_1: {ctor: '[]'}
+													}),
+												_1: {
+													ctor: '::',
+													_0: _user$project$Main$playersView(_p9._0),
+													_1: {ctor: '[]'}
+												}
+											}),
 										_1: {ctor: '[]'}
 									}
-								}
-							},
-							{ctor: '[]'}),
-						_1: {ctor: '[]'}
-					}),
-				_1: {
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$button,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Events$onClick(_user$project$Main$JoinChannel),
-							_1: {ctor: '[]'}
-						},
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html$text('Connect'),
-							_1: {ctor: '[]'}
-						}),
-					_1: {ctor: '[]'}
-				}
+								});
+						default:
+							return A2(
+								_elm_lang$html$Html$div,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: _user$project$Main$roundDataView(_p9._1),
+									_1: {
+										ctor: '::',
+										_0: _user$project$Main$playersView(_p9._0),
+										_1: {ctor: '[]'}
+									}
+								});
+					}
+				}(),
+				_1: {ctor: '[]'}
 			}
 		});
-};
-var _user$project$Main$PhoenixMsg = function (a) {
-	return {ctor: 'PhoenixMsg', _0: a};
-};
-var _user$project$Main$update = F2(
-	function (msg, model) {
-		var _p0 = msg;
-		switch (_p0.ctor) {
-			case 'SetName':
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{name: _p0._0}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-			case 'SetGameCode':
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{gameCode: _p0._0}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-			case 'ProcessSocketData':
-				var d = A2(_elm_lang$core$Debug$log, 'data', _p0._0);
-				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-			case 'PhoenixMsg':
-				var _p1 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$update, _p0._0, model.phxSocket);
-				var phxSocket = _p1._0;
-				var phxCmd = _p1._1;
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{phxSocket: phxSocket}),
-					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, phxCmd)
-				};
-			case 'JoinChannel':
-				var _p2 = A2(_user$project$Main$joinChannel, model.phxSocket, model.gameCode);
-				var phx = _p2._0;
-				var msg = _p2._1;
-				var d = A2(_elm_lang$core$Debug$log, 'phx', phx);
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{phxSocket: phx}),
-					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, msg)
-				};
-			default:
-				var pmsg = A2(
-					_fbonetti$elm_phoenix_socket$Phoenix_Push$onError,
-					_user$project$Main$ProcessSocketData,
-					A2(
-						_fbonetti$elm_phoenix_socket$Phoenix_Push$onOk,
-						_user$project$Main$ProcessSocketData,
-						A2(_user$project$Main$push, 'show', model)));
-				var d = A2(_elm_lang$core$Debug$log, 'pmsg', pmsg);
-				var _p3 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, pmsg, model.phxSocket);
-				var phxSocket = _p3._0;
-				var phxCmd = _p3._1;
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{phxSocket: phxSocket}),
-					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, phxCmd)
-				};
-		}
-	});
-var _user$project$Main$subscriptions = function (model) {
-	return A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$listen, model.phxSocket, _user$project$Main$PhoenixMsg);
 };
 var _user$project$Main$main = _elm_lang$html$Html$program(
 	{init: _user$project$Main$init, view: _user$project$Main$view, update: _user$project$Main$update, subscriptions: _user$project$Main$subscriptions})();
